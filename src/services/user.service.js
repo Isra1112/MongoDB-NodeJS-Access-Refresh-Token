@@ -1,16 +1,20 @@
 const User = require('../models/user.model')
 const bcrypt = require("bcryptjs");
 const respon = require('../helper/responJson');
+const Role = require('../models/role.model');
 
 
 class UserServ{
     async addUser(body){
         let result;
         try {
+            let defaultRole = await Role.find({'default':true})
+            console.log(defaultRole)
             const newUser = new User({ 
                 name : body.name,
                 email : body.email,
-                password : bcrypt.hashSync(body.password, 8)
+                password : bcrypt.hashSync(body.password, 8),
+                roles: defaultRole
             });
             let data = await User.create(newUser)
             let responseTemplate = new respon(200,"Success Create User",data)
@@ -58,7 +62,6 @@ class UserServ{
             limit: parseInt(query.limit, 10) || 10
         }
         try {
-            console.log(1)
             let data = await User.find(regexQuery)
             .skip(pagging.page * pagging.limit)
             .limit(pagging.limit)
@@ -101,6 +104,21 @@ class UserServ{
             result = JSON.stringify(responTemplate,null,2)
         } 
         catch (error) {
+            throw new Error(error)
+        }
+        return result
+    }
+    async addRole(body){
+        let result;
+        try {
+            const newRole = new Role({ 
+                name : body.name,
+                default : body.default
+            });
+            let data = await Role.create(newRole)
+            let responseTemplate = new respon(200,"Success Create Role",data)
+            result = JSON.stringify(responseTemplate,null,2)
+        } catch (error) {
             throw new Error(error)
         }
         return result

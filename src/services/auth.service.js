@@ -8,9 +8,9 @@ const bcrypt = require("bcryptjs");
 class Auth{
     async signin(req,res){
       User.findOne({
-        username: req.body.email,
+        email: req.body.email,
       })
-        // .populate("roles", "-__v")
+        .populate("roles")
         .exec(async (err, user) => {
           if (err) {
             res.status(500).send({ message: err });
@@ -39,16 +39,17 @@ class Auth{
     
           let refreshToken = await RefreshToken.createToken(user);
     
-        //   let authorities = [];
+          let authorities = [];
+          // console.log(user.roles)
     
-        //   for (let i = 0; i < user.roles.length; i++) {
-        //     authorities.push("ROLE_" + user.roles[i].name.toUpperCase());
-        //   }
+          // for (let i = 0; i < user.roles.length; i++) {
+          //   authorities.push(user.roles[i]);
+          // }
           res.status(200).send({
             id: user._id,
             username: user.username,
             email: user.email,
-            // roles: authorities,
+            roles: user.roles,
             accessToken: token,
             refreshToken: refreshToken,
           });
