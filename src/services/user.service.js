@@ -9,7 +9,6 @@ class UserServ{
         let result;
         try {
             let defaultRole = await Role.find({'default':true})
-            console.log(defaultRole)
             const newUser = new User({ 
                 name : body.name,
                 email : body.email,
@@ -108,15 +107,28 @@ class UserServ{
         }
         return result
     }
-    async addRole(body){
+    async addRoleToUser(body){
         let result;
         try {
-            const newRole = new Role({ 
-                name : body.name,
-                default : body.default
-            });
-            let data = await Role.create(newRole)
-            let responseTemplate = new respon(200,"Success Create Role",data)
+            let dataUser = await User.findById(body.user_id)
+            let dataRole = await Role.findById(body.role_id)
+            dataUser.roles.push(dataRole._id)
+            let addedUserRole = await User.findByIdAndUpdate(body.user_id,dataUser,{new:true})
+            let responseTemplate = new respon(200,"Success Add Role To User",addedUserRole)
+            result = JSON.stringify(responseTemplate,null,2)
+        } catch (error) {
+            throw new Error(error)
+        }
+        return result
+    }
+    async deleteRoleInUser(body){
+        let result;
+        try {
+            let dataUser = await User.findById(body.user_id)
+            let dataRole = await Role.findById(body.role_id)
+            dataUser.roles = dataUser.roles.filter(item => JSON.stringify(item) !== JSON.stringify(dataRole._id))
+            let deletedUserRole = await User.findByIdAndUpdate(body.user_id,dataUser,{new:true})
+            let responseTemplate = new respon(200,"Success Delete Role",deletedUserRole)
             result = JSON.stringify(responseTemplate,null,2)
         } catch (error) {
             throw new Error(error)

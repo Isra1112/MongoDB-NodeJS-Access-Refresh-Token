@@ -7,7 +7,7 @@ const verifyToken = require('../middlewares/auth-token');
 const roleService = new RoleService();
 
 
-// router.use(verifyToken)
+router.use(verifyToken)
 router.get('/',(req,res,next)=>getRole(req,res,roleService))
 router.get('/:id',(req,res,next)=>getRole(req,res,roleService))
 router.post('/',(req,res,next)=>addNewRole(req,res,roleService))

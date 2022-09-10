@@ -49,7 +49,17 @@ const removeUser = async(req,res,service)=>{
 const addNewRole = async(req,res,service)=>{
     try {
         const body = req.body;
-        const role = await service.addRole(body)
+        const role = await service.addRoleToUser(body)
+        res.send(role)
+    } catch (e) {
+        res.sendStatus(500);
+    }
+}
+
+const removeRole = async(req,res,service)=>{
+    try {
+        const body = req.body;
+        const role = await service.deleteRoleInUser(body)
         res.send(role)
     } catch (e) {
         res.sendStatus(500);
@@ -57,4 +67,4 @@ const addNewRole = async(req,res,service)=>{
 }
 
 
-module.exports = {addNewUser,getUser,updateUser,removeUser,addNewRole};
+module.exports = {addNewUser,getUser,updateUser,removeUser,addNewRole,removeRole};
