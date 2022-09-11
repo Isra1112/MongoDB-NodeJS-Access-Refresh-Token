@@ -1,28 +1,25 @@
-const Role = require('../models/role.model')
+const Module = require('../models/module.model')
 const respon = require('../helper/responJson');
-const { ObjectId } = require('mongodb');
 
-class RoleServ{
-    async addRole(body){
+class ModuleServ{
+    async addModule(body){
         let result;
-        
         try {
-            const newRole = new Role({ 
-                name : body.name,
-                modules : body.modules
+            const newModule = new Module({ 
+                name : body.name
             });
-            let data = await Role.create(newRole)
-            let responseTemplate = new respon(200,"Success Create Role",data)
+            let data = await Module.create(newModule)
+            let responseTemplate = new respon(200,"Success Create Module",data)
             result = JSON.stringify(responseTemplate,null,2)
         } catch (error) {
             throw new Error(error)
         }
         return result
     }
-    async findAllRole(){
+    async findAllModule(){
         let result;
         try {
-            let data = await Role.find().populate('modules')
+            let data = await Module.find()
             let responTemplate = new respon(200,"Success",data)
             result = JSON.stringify(responTemplate,null,2)
         } 
@@ -35,7 +32,7 @@ class RoleServ{
     async findByID(body){
         let result;
         try {
-            let data = await Role.findById(body,'name').populate('modules')
+            let data = await Module.findById(body,'name')
             let responTemplate = new respon(200,"Success",data)
             result = JSON.stringify(responTemplate,null,2)
         } 
@@ -49,24 +46,21 @@ class RoleServ{
         let result;
         // let isDefault = /true/g;
         var regexQuery = {
-            name: new RegExp(query.name, 'i'),
-            // default: query.default || 'true'
+            name: new RegExp(query.name, 'i')
         };
-        // regexQuery.default = isDefault.test(regexQuery.default)
         
         var pagging = {
             page: parseInt(query.page-1, 10) || 0,
             limit: parseInt(query.limit, 10) || 10
         }
         try {
-            let data = await Role.find(regexQuery)
-            .populate('modules')
+            let data = await Module.find(regexQuery)
             .skip(pagging.page * pagging.limit)
             .limit(pagging.limit)
             let responTemplate = new respon(200,"Success Search Role",data)
             responTemplate.page = pagging.page
             responTemplate.pageLimit = pagging.limit
-            responTemplate.count = await Role.countDocuments(regexQuery)
+            responTemplate.count = await Module.countDocuments(regexQuery)
             result = JSON.stringify(responTemplate,null,2)
         } 
         catch (error) {
@@ -75,11 +69,11 @@ class RoleServ{
         return result
     }
 
-    async editRole(body){
+    async editModule(body){
         let result;
         try {
-            let data = await Role.findByIdAndUpdate(body._id,body,{new:true}).populate('modules')
-            let responseTemplate = new respon(200,"Success Update Role",data)
+            let data = await Module.findByIdAndUpdate(body._id,body,{new:true})
+            let responseTemplate = new respon(200,"Success Update Module",data)
             result = JSON.stringify(responseTemplate,null,2)
         } 
         catch (error) {
@@ -87,16 +81,16 @@ class RoleServ{
         }
         return result
     }
-    async deleteRole(body){
+    async deleteModule(body){
         let result;
         try {
-            let data = await Role.findByIdAndRemove(body._id).populate('modules')
+            let data = await Module.findByIdAndRemove(body._id)
             let responTemplate;
             if (data){
-                responTemplate = new respon(200,"Success Delete Role",data)
+                responTemplate = new respon(200,"Success Delete Module",data)
             }
             else{
-                responTemplate = new respon(201,"Not Found Role ID",data)
+                responTemplate = new respon(201,"Not Found Module ID",data)
             }
             
             result = JSON.stringify(responTemplate,null,2)
@@ -108,4 +102,4 @@ class RoleServ{
     }
 }
 
-module.exports = RoleServ;
+module.exports = ModuleServ;
