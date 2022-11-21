@@ -1,6 +1,7 @@
 const config = require("../../config/authConfig");
 const db = require("../models/index.model");
 const { user: User, refreshToken: RefreshToken } = db;
+const Role = require('../models/role.model')
 
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -10,7 +11,14 @@ class Auth{
       User.findOne({
         email: req.body.email,
       })
-        .populate("roles","name default")
+        .populate({
+          path    : 'roles',
+          select: '-_id __v',
+          populate: { 
+            path: 'modules',
+            select: '-_id -__v ',
+          }
+     })
         .exec(async (err, user) => {
           if (err) {
             res.status(500).send({ message: err });
@@ -38,12 +46,7 @@ class Auth{
           });
     
           let refreshToken = await RefreshToken.createToken(user);
-    
-          //   let authorities = [];
-    
-        //   for (let i = 0; i < user.roles.length; i++) {
-        //     authorities.push("ROLE_" + user.roles[i].name.toUpperCase());
-        //   }
+          
           res.status(200).send({
             id: user._id,
             username: user.username,
@@ -64,7 +67,7 @@ class Auth{
     
       try {
         let refreshToken = await RefreshToken.findOne({ token: requestToken });
-    
+        
         if (!refreshToken) {
           res.status(403).json({ message: "Refresh token is not in database!" });
           return;

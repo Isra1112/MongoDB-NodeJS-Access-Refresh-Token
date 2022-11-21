@@ -8,12 +8,13 @@ const RefreshTokenSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  expiryDate: {
-    type: Date,
-    default: Date.now,
-    index: { expires: config.jwtRefreshExpiration }
-    // index: { expires: 60 * 60 * 24 }
-  },
+  expiryDate: Date,
+  // expiryDate: {
+  //   type: Date,
+  //   default: Date.now,
+  //   // index: { expires: config.jwtRefreshExpiration }
+  //   index: { expires: 60 * 60 * 24 }
+  // },
 });
 
 RefreshTokenSchema.statics.createToken = async function (user) {
@@ -28,6 +29,7 @@ RefreshTokenSchema.statics.createToken = async function (user) {
   let _object = new this({
     token: _token,
     user: user._id,
+    expiryDate: expiredAt.getTime(),
   });
 
 
